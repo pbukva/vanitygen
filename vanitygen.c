@@ -69,13 +69,13 @@ vg_thread_loop(void *arg)
 
 	memset(&ctx, 0, sizeof(ctx));
 	vxcp = &ctx;
-
+    
 	vg_exec_context_init(vcp, &ctx);
 
 	pkey = vxcp->vxc_key;
 	pgroup = EC_KEY_get0_group(pkey);
 	pgen = EC_GROUP_get0_generator(pgroup);
-
+    
 	for (i = 0; i < ptarraysize; i++) {
 		ppnt[i] = EC_POINT_new(pgroup);
 		if (!ppnt[i]) {
@@ -89,8 +89,8 @@ vg_thread_loop(void *arg)
 		exit(1);
 	}
 
-	BN_set_word(&vxcp->vxc_bntmp, ptarraysize);
-	EC_POINT_mul(pgroup, pbatchinc, &vxcp->vxc_bntmp, NULL, NULL,
+	BN_set_word(vxcp->vxc_bntmp, ptarraysize);
+	EC_POINT_mul(pgroup, pbatchinc, vxcp->vxc_bntmp, NULL, NULL,
 		     vxcp->vxc_bnctx);
 	EC_POINT_make_affine(pgroup, pbatchinc, vxcp->vxc_bnctx);
 
@@ -125,13 +125,16 @@ vg_thread_loop(void *arg)
 			npoints = 0;
 
 			/* Determine rekey interval */
-			EC_GROUP_get_order(pgroup, &vxcp->vxc_bntmp,
+			EC_GROUP_get_order(pgroup, vxcp->vxc_bntmp,
 					   vxcp->vxc_bnctx);
-			BN_sub(&vxcp->vxc_bntmp2,
-			       &vxcp->vxc_bntmp,
+			BN_sub(vxcp->vxc_bntmp2,
+			       vxcp->vxc_bntmp,
 			       EC_KEY_get0_private_key(pkey));
-			rekey_at = BN_get_word(&vxcp->vxc_bntmp2);
-			if ((rekey_at == BN_MASK2) || (rekey_at > rekey_max))
+			rekey_at = BN_get_word(vxcp->vxc_bntmp2);
+
+#define BN_MASK2	(0xffffffffUL)
+
+            if ((rekey_at == BN_MASK2) || (rekey_at > rekey_max))
 				rekey_at = rekey_max;
 			assert(rekey_at > 0);
 

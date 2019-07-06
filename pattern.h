@@ -46,15 +46,15 @@ typedef void *(*vg_exec_context_threadfunc_t)(vg_exec_context_t *);
 
 /* Context of one pattern-matching unit within the process */
 struct _vg_exec_context_s {
-	vg_context_t			*vxc_vc;
+	vg_context_t		*vxc_vc;
 	BN_CTX				*vxc_bnctx;
 	EC_KEY				*vxc_key;
 	int				vxc_delta;
 	unsigned char			vxc_binres[28];
-	BIGNUM				vxc_bntarg;
-	BIGNUM				vxc_bnbase;
-	BIGNUM				vxc_bntmp;
-	BIGNUM				vxc_bntmp2;
+	BIGNUM				*vxc_bntarg;
+	BIGNUM				*vxc_bnbase;
+	BIGNUM				*vxc_bntmp;
+	BIGNUM				*vxc_bntmp2;
 
 	vg_exec_context_threadfunc_t	vxc_threadfunc;
 	pthread_t			vxc_pthread;
